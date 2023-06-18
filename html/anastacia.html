@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musik</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+    <script src="jquery.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="logo">MusicPlay</div>
+        <nav>
+            <ul>
+                <li><a href="/index.html">Home</a></li>
+                <li><a href="/playlist.html">PlayList</a></li>
+                <li><a href="/about.html">About</a></li>
+            </ul>
+        </nav>
+        <div class="menu-toggle">
+            <i class="fa fa-bars"></i>
+        </div>
+    </header>
+
+    <script>
+        $(document).ready(function () {
+            $(".menu-toggle").click(function () {
+                $('nav').toggleClass('active');
+            })
+        })
+    </script>
+    <style>
+      body {
+        background: #706c6c;
+      }
+      audio::-webkit-media-controls-panel {
+        color: #949494;
+        background-color: #949494;
+      }
+      p {
+              color: white;
+      }
+    </style>
+    <main>
+  <div style="background-color: #949494" class="music-card">
+  <img src="https://i.scdn.co/image/ab67616d0000b273a7b4feaa86c26fd3a685d01c" alt="Gambar Musik">
+  <h2>Anastacia</h2>
+  <p>Anymars</p>
+  <audio controls>
+    <source src="/music/anastacia.mp3" type="audio/mpeg">
+  </audio>
+</div>
+    </main>
+</body>
+
+</html>

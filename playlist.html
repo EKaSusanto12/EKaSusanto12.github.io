@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusikPlay</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+    <script src="jquery.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="logo">MusicPlay</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a class="active" href="playlist.html">PlayList</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <div class="menu-toggle">
+            <i class="fa fa-bars"></i>
+        </div>
+    </header>
+
+    <script>
+        $(document).ready(function () {
+            $(".menu-toggle").click(function () {
+                $('nav').toggleClass('active');
+            })
+        })
+    </script>
+    <main>
+     <div class="play-list">
+       <a href="phonk-list.html"><img
+       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK2nZnzhOB4l3dz1OClN7IOegE9D5RyCPTXg&usqp=CAU"
+       style="width: 150px;height: 150px;"></a>
+     </div>
+    </main>
+</body>
+
+</html>

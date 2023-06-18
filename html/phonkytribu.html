@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Musik</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+  <script src="jquery.js"></script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">MusicPlay</div>
+    <nav>
+      <ul>
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/playlist.html">PlayList</a></li>
+        <li><a href="/about.html">About</a></li>
+      </ul>
+    </nav>
+    <div class="menu-toggle">
+      <i class="fa fa-bars"></i>
+    </div>
+  </header>
+
+  <script>
+    $(document).ready(function() {
+      $(".menu-toggle").click(function() {
+        $('nav').toggleClass('active');
+      })
+    })
+  </script>
+    <style>
+      body {
+        background: #414549;
+      }
+      audio::-webkit-media-controls-panel {
+        color: #484f56;
+        background-color: #484f56;
+      }
+      p {
+              color: white;
+      }
+    </style>
+  <main>
+    <div style="background: #484f56;" class="music-card">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlfNeAZD1gaxEWlY4uE7bLH3w_7cejWsfycQ&usqp=CAU" alt="Gambar Musik">
+      <h2>Phonky Tribu</h2>
+      <p>Funk Tribu</p>
+      <audio controls>
+        <source src="/music/phonkytribu.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+  </main>
+</body>
+
+</html>
