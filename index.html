@@ -1,193 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
+ <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+   name="description"
+   content="Free downloadable music contains 10.000+ songs. Update every week more than 50+."
+  />
+  <meta
+   name="keywords"
+   content="MusicPlay, Music, Musik, Download Music, Download Musik"
+  />
+  <title>MusicPlay</title>
+  <link rel="stylesheet" href="style.css" />
+  <link
+   rel="stylesheet"
+   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+  />
+  <script src="jquery.js"></script>
+  <script src="search.js"></script>
+ </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free downloadable music contains 1.000+ songs. Update every week more than 50+.">
-    <meta name="keywords" content="MusicPlay, Music, Musik, Download Music, Download Musik">
-    <title>MusicPlay</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
-    <script src="jquery.js"></script>
-    <script src="search.js"></script>
-</head>
+ <body>
+  <header>
+   <div class="logo">MusicPlay</div>
+   <nav>
+    <ul>
+     <li><a class="active" href="index.html">Home</a></li>
+     <li><a href="playlist.html">PlayList</a></li>
+     <li><a href="about.html">About</a></li>
+    </ul>
+   </nav>
+   <div class="menu-toggle">
+    <i class="fa fa-bars"></i>
+   </div>
+  </header>
 
-<body>
-    <header>
-        <div class="logo">MusicPlay</div>
-        <nav>
-            <ul>
-                <li><a class="active" href="index.html">Home</a></li>
-                <li><a href="playlist.html">PlayList</a></li>
-                <li><a href="about.html">About</a></li>
-            </ul>
-        </nav>
-        <div class="menu-toggle">
-            <i class="fa fa-bars"></i>
-        </div>
-    </header>
-
-    <script>
-        $(document).ready(function () {
-            $(".menu-toggle").click(function () {
-                $('nav').toggleClass('active');
-            })
-        })
-    </script>
-    <style>
-        #inputSearch {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        #buttonSearch{
-            margin-left: 10px;
-            width: 35px;
-            height: 35px;
-            border-radius: 10px;
-            background-color: white;
-        }
-        #Search {
-            font-size: 20px;
-            text-align: center;
-            width: 200px;
-            height: 30px;
-            border-radius: 10px;
-        }
-    </style>
-    <main>
-        <div id="inputSearch">
-        <input type="text" onkeydown="enter()" id="Search" placeholder="Search.." title="Type in a category">
-        <button id="buttonSearch" onclick="Function()"><i class="fa-solid fa-magnifying-glass"></i></button>
-        </div>
-      <ul class="song-list" id="Menu">
-	<li>
-		<h2><a href="/html/neonblade.html">NEON BLADE</a></h2>
-		<p><a href="/html/neonblade.html">Moondeity</a></p>
-		<p><a href="/html/neonblade.html">Duration: 4.25</a></p>
-	</li>
-	<li>
-		<h2><a href="/html/dancin'.html">Dancin' (Krono Remix)(feat. Luvli)</a></h2>
-		<p><a href="/html/dancin'.html">aaron smith</a></p>
-		<p><a href="/html/dancin'.html.html">Duration: 3.18</a></p>
-	</li>
-	<li>
-		<h2><a href="/html/metamorphosis.html">Metamorphosis</a></h2>
-		<p><a href="/html/metamorphosis.html">INTERWORLD</a></p>
-		<p><a href="/html/metamorphosis.html">Duration: 2.22</a></p>
-	</li>
-	<li>
-	    <h2><a href="/html/metamorphosis2.html">Metamorphosis 2</a></h2>
-  	    <p><a href="/html/metamorphosis2.html">INTERWORLD</a></p>
-	    <p><a href="/html/metamorphosis2.html">Duration: 2.18</a></p>
-	</li>
-	<li>
-		<h2><a href="/html/cataclysm.html">Cataclysm</a></h2>
-		<p><a href="/html/cataclysm.html">Yvetzal</a></p>
-		<p><a href="/html/cataclysm.html">Duration: 2.59</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/sufferwithme.html">Suffer With Me</a></h2>
-	  <p><a href="/html/sufferwithme.html">Liue</a></p>
-	  <p><a href="/html/sufferwithme.html">Duration: 3.27</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/immaculate.html">IMMACULATE</a></h2>
-	  <p><a href="/html/immaculate.html">VISXGE</a></p>
-	  <p><a href="/html/immaculate.html">Duration: 2.20</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/midnight.html">MIDNIGHT</a></h2>
-	  <p><a href="/html/midnight.html">PLAYAMANE & Nateki</a></p>
-	  <p><a href="/html/midnight.html">Duration: 2.02</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/warning.html">WARNING</a></h2>
-	  <p><a href="/html/warning.html">MC ORSEN</a></p>
-	  <p><a href="/html/warning.html">Duration: 2.10</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/seaofproblems.html">Sea Of Problems</a></h2>
-	  <p><a href="/html/seaofproblems.html">Glichery</a></p>
-	  <p><a href="/html/seaofproblems.html">Duration: 1.50</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/sotired.html">SO TIRED</a></h2>
-	  <p><a href="/html/sotired.html">NUEKI & TOLCHONOV</a></p>
-	  <p><a href="/html/sotired.html">Duration: 2.52</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/stillbreathing.html">Still Breathing</a></h2>
-	  <p><a href="/html/stillbreathing.html">DVRST</a></p>
-	  <p><a href="/html/stillbreathing.html">Duration: 3.13</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/nightexpress.html">nightexpress</a></h2>
-	  <p><a href="/html/nightexpress.html">Kim & Øneheart</a></p>
-	  <p><a href="/html/nightexpress.html">Duration: 2.40</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/seamemories.html">Sea Memories</a></h2>
-	  <p><a href="/html/seamemories.html">TTM</a></p>
-	  <p><a href="/html/seamemories.html">Duration: 2.36</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/flashbacks(slowed).html">Flashbacks (Slowed)</a></h2>
-	  <p><a href="/html/flashbacks(slowed).html">CRASPORE</a></p>
-	  <p><a href="/html/flashbacks(slowed).html">Duration: 6.42</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/metadata.html">Metadata</a></h2>
-	  <p><a href="/html/metadata.html">WILLIX & ZØMB</a></p>
-	  <p><a href="/html/metadata.html">Duration: 1.48</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/starfall.html">STARFALL</a></h2>
-	  <p><a href="/html/starfall.html">MoonDeity & ARCHEZ</a></p>
-	  <p><a href="/html/starfall.html">Duration: 1.43</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/anastacia.html">Anastacia</a></h2>
-	  <p><a href="/html/anastacia.html">Anymars</a></p>
-	  <p><a href="/html/starfall.html">Duration: 1.57</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/blowin'.html">BLOWIN'</a></h2>
-	  <p><a href="/html/blowin'.html">KXNRVA</a></p>
-	  <p><a href="/html/blowin'.html">Duration: 2.57</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/ariamath.html">Aria Math</a></h2>
-	  <p><a href="/html/ariamath.html">bxhq & HARDX</a></p>
-	  <p><a href="/html/ariamath.html">Duration: 4.05</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/closeeyes.html">Close Eyes</a></h2>
-	  <p><a href="/html/closeeyes.html">DVRST</a></p>
-	  <p><a href="/html/closeeyes.html">Duration: 2.12</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/rapture.html">Rapture</a></h2>
-	  <p><a href="/html/rapture.html">INTERWORLD</a></p>
-	  <p><a href="/html/rapture.html">Duration: 2.44</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/phonkytribu.html">Phonky Tribu</a></h2>
-	  <p><a href="/html/phonkytribu.html">Funk Tribu</a></p>
-	  <p><a href="/html/phonkytribu.html">Duration: 4.46</a></p>
-	</li>
-	<li>
-	  <h2><a href="/html/nightdrive.html">Night Drive</a></h2>
-	  <p><a href="/html/nightdrive.html">Wilee</a></p>
-	  <p><a href="/html/nightdrive.html">Duration: 2.04</a></p>
-	</li>
-</ul>
-
-    </main>
-</body>
-
+  <script>
+   $(document).ready(function () {
+    $(".menu-toggle").click(function () {
+     $("nav").toggleClass("active");
+    });
+   });
+  </script>
+  <style>
+   #inputSearch {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 30px;
+   }
+   #buttonSearch {
+    margin-left: 10px;
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    background-color: white;
+   }
+   #Search {
+    font-size: 20px;
+    text-align: center;
+    width: 200px;
+    height: 30px;
+    border-radius: 10px;
+   }
+  </style>
+  <main>
+   <div id="inputSearch">
+    <input
+     type="text"
+     onkeydown="enter()"
+     id="Search"
+     placeholder="Search.."
+     title="Type in a category"
+    />
+    <button id="buttonSearch" onclick="Function()">
+     <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+   </div>
+   <ul class="song-list" id="Menu">
+    <li>
+     <h2><a href="/html/neonblade.html">NEON BLADE</a></h2>
+     <p><a href="/html/neonblade.html">Moondeity</a></p>
+     <p><a href="/html/neonblade.html">Duration: 4.25</a></p>
+    </li>
+    <li>
+     <h2>
+      <a href="/html/dancin'.html">Dancin' (Krono Remix)(feat. Luvli)</a>
+     </h2>
+     <p><a href="/html/dancin'.html">aaron smith</a></p>
+     <p><a href="/html/dancin'.html.html">Duration: 3.18</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/metamorphosis.html">Metamorphosis</a></h2>
+     <p><a href="/html/metamorphosis.html">INTERWORLD</a></p>
+     <p><a href="/html/metamorphosis.html">Duration: 2.22</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/metamorphosis2.html">Metamorphosis 2</a></h2>
+     <p><a href="/html/metamorphosis2.html">INTERWORLD</a></p>
+     <p><a href="/html/metamorphosis2.html">Duration: 2.18</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/cataclysm.html">Cataclysm</a></h2>
+     <p><a href="/html/cataclysm.html">Yvetzal</a></p>
+     <p><a href="/html/cataclysm.html">Duration: 2.59</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/sufferwithme.html">Suffer With Me</a></h2>
+     <p><a href="/html/sufferwithme.html">Liue</a></p>
+     <p><a href="/html/sufferwithme.html">Duration: 3.27</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/immaculate.html">IMMACULATE</a></h2>
+     <p><a href="/html/immaculate.html">VISXGE</a></p>
+     <p><a href="/html/immaculate.html">Duration: 2.20</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/midnight.html">MIDNIGHT</a></h2>
+     <p><a href="/html/midnight.html">PLAYAMANE & Nateki</a></p>
+     <p><a href="/html/midnight.html">Duration: 2.02</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/warning.html">WARNING</a></h2>
+     <p><a href="/html/warning.html">MC ORSEN</a></p>
+     <p><a href="/html/warning.html">Duration: 2.10</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/seaofproblems.html">Sea Of Problems</a></h2>
+     <p><a href="/html/seaofproblems.html">Glichery</a></p>
+     <p><a href="/html/seaofproblems.html">Duration: 1.50</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/sotired.html">SO TIRED</a></h2>
+     <p><a href="/html/sotired.html">NUEKI & TOLCHONOV</a></p>
+     <p><a href="/html/sotired.html">Duration: 2.52</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/stillbreathing.html">Still Breathing</a></h2>
+     <p><a href="/html/stillbreathing.html">DVRST</a></p>
+     <p><a href="/html/stillbreathing.html">Duration: 3.13</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/nightexpress.html">nightexpress</a></h2>
+     <p><a href="/html/nightexpress.html">Kim & Øneheart</a></p>
+     <p><a href="/html/nightexpress.html">Duration: 2.40</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/seamemories.html">Sea Memories</a></h2>
+     <p><a href="/html/seamemories.html">TTM</a></p>
+     <p><a href="/html/seamemories.html">Duration: 2.36</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/flashbacks(slowed).html">Flashbacks (Slowed)</a></h2>
+     <p><a href="/html/flashbacks(slowed).html">CRASPORE</a></p>
+     <p><a href="/html/flashbacks(slowed).html">Duration: 6.42</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/metadata.html">Metadata</a></h2>
+     <p><a href="/html/metadata.html">WILLIX & ZØMB</a></p>
+     <p><a href="/html/metadata.html">Duration: 1.48</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/starfall.html">STARFALL</a></h2>
+     <p><a href="/html/starfall.html">MoonDeity & ARCHEZ</a></p>
+     <p><a href="/html/starfall.html">Duration: 1.43</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/anastacia.html">Anastacia</a></h2>
+     <p><a href="/html/anastacia.html">Anymars</a></p>
+     <p><a href="/html/starfall.html">Duration: 1.57</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/blowin'.html">BLOWIN'</a></h2>
+     <p><a href="/html/blowin'.html">KXNRVA</a></p>
+     <p><a href="/html/blowin'.html">Duration: 2.57</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/ariamath.html">Aria Math</a></h2>
+     <p><a href="/html/ariamath.html">bxhq & HARDX</a></p>
+     <p><a href="/html/ariamath.html">Duration: 4.05</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/closeeyes.html">Close Eyes</a></h2>
+     <p><a href="/html/closeeyes.html">DVRST</a></p>
+     <p><a href="/html/closeeyes.html">Duration: 2.12</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/rapture.html">Rapture</a></h2>
+     <p><a href="/html/rapture.html">INTERWORLD</a></p>
+     <p><a href="/html/rapture.html">Duration: 2.44</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/phonkytribu.html">Phonky Tribu</a></h2>
+     <p><a href="/html/phonkytribu.html">Funk Tribu</a></p>
+     <p><a href="/html/phonkytribu.html">Duration: 4.46</a></p>
+    </li>
+    <li>
+     <h2><a href="/html/nightdrive.html">Night Drive</a></h2>
+     <p><a href="/html/nightdrive.html">Wilee</a></p>
+     <p><a href="/html/nightdrive.html">Duration: 2.04</a></p>
+    </li>
+   </ul>
+  </main>
+ </body>
 </html>
