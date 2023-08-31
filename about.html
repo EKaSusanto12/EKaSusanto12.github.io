@@ -1,71 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+ <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MusicPlay</title>
+  <link rel="stylesheet" href="style.css" />
+  <link
+   rel="stylesheet"
+   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+  />
+  <script src="jquery.js"></script>
+ </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MusicPlay</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
-    <script src="jquery.js"></script>
-</head>
+ <body>
+  <header>
+   <div class="logo">MusicPlay</div>
+   <nav>
+    <ul>
+     <li><a href="index.html">Home</a></li>
+     <li><a href="playlist.html">PlayList</a></li>
+     <li><a class="active" href="about.html">About</a></li>
+    </ul>
+   </nav>
+   <div class="menu-toggle">
+    <i class="fa fa-bars"></i>
+   </div>
+   <style>
+    h2 {
+     text-align: center;
+    }
+    button {
+     size: 100px;
+    }
+    .button-wrapper {
+     display: flex;
+     justify-content: center;
+    }
+    .whatsapp-button {
+     display: inline-block;
+     background-color: #25d366;
+     color: #fff;
+     text-decoration: none;
+     padding: 10px 15px;
+     border-radius: 5px;
+     font-family: Arial, sans-serif;
+     font-size: 16px;
+     border: none;
+    }
+   </style>
+  </header>
 
-<body>
-    <header>
-        <div class="logo">MusicPlay</div>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="playlist.html">PlayList</a></li>
-                <li><a class="active" href="about.html">About</a></li>
-            </ul>
-        </nav>
-        <div class="menu-toggle">
-            <i class="fa fa-bars"></i>
-        </div>
-        <style>
-                h2 {
-                        text-align: center;
-                }
-                button {
-                        size: 100px;
-                }
-                .button-wrapper {
-                        display: flex;
-                        justify-content: center;
-                        
-                }
-                .whatsapp-button {
-                        display: inline-block;
-                        background-color: #25D366;
-                        color: #fff;
-                        text-decoration: none;
-                        padding: 10px 15px;
-                        border-radius: 5px;
-                        font-family: Arial, sans-serif;
-                        font-size: 16px;
-                        border: none;
-                        
-                }
-        </style>
-    </header>
-
-    <script>
-        $(document).ready(function () {
-            $(".menu-toggle").click(function () {
-                $('nav').toggleClass('active');
-            })
-        })
-    </script>
-    <main>
-      <h2>Created by Eka</h2>
-      <h2>If you find a bug or want to make a suggestion, please contact me</h2>
-      <div class="button-wrapper">
-                <a href="https://wa.me/+6281930830955"
-                class="whatsapp-button">fa fa-whatsapp</a>
-      </div>
-    </main>
-</body>
-
+  <script>
+   $(document).ready(function () {
+    $(".menu-toggle").click(function () {
+     $("nav").toggleClass("active");
+    });
+   });
+  </script>
+  <main>
+   <h2>Created by Eka</h2>
+   <h2>If you find a bug or want to make a suggestion, please contact me</h2>
+   <div class="button-wrapper">
+    <a href="https://wa.me/+6281930830955" class="whatsapp-button"
+     ><i class="fa fa-whatsapp"></i></a
+    >
+   </div>
+  </main>
+ </body>
 </html>
