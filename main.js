@@ -1,4 +1,4 @@
-var audio= document.querySelector(audio);
+var audio= document.getElementsByTagName("audio");
 
 if (active = true) {
  audio.style.display = "none";
