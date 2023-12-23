@@ -55,9 +55,20 @@
      border: none;
      border-radius: 10px;
     }
+    .facebook-button {
+     display: inline-block;
+     background-color: #2d58ee;
+     color: #fff;
+     text-decoration: none;
+     padding: 10px 15px;
+     font-family: Arial, sans-serif;
+     font-size: 16px;
+     border: none;
+     border-radius: 10px;
+    }
     .instagram-button {
      display: inline-block;
-     background-color: #b71c74;
+     background-color: #df287d;
      color: #fff;
      text-decoration: none;
      padding: 10px 15px;
@@ -75,18 +86,28 @@
      $("nav").toggleClass("active");
     });
    });
+   var wa_button = document.getElementsByClassName('whatsapp-button');
+   wa_button.addEventListener('click',
+   function(){
+    window.location.href = 'https://wa.me/+6282340074241';
+   });
   </script>
   <main>
    <h2>Created by EKa Susanto</h2>
    <h2>If you find a bug or want to make a suggestion, please contact me</h2>
    <div class="button-wrapper">
-    <a href="https://wa.me/+6281930830955" class="whatsapp-button"
+    <button href="https://wa.me/+6281930830955" class="whatsapp-button"
      ><i class="fa fa-whatsapp" style="font-size: 30px"></i
-    ></a>
-    <a href="https://www.instagram.com/ken_ketto?igsh=OGY3MTU3OGY1Mw=="
+    ></button>
+    <button
+    href="https://www.facebook.com/eka.susanto.144181?mibextid=mna8qTP8xvtPE1tK"
+    class="facebook-button"
+     ><i class="fa fa-facebook" style="font-size: 30px"></i
+    ></button>
+    <button href="https://www.instagram.com/ken_ketto?igsh=OGY3MTU3OGY1Mw=="
     class="instagram-button"
      ><i class="fa fa-instagram" style="font-size: 30px"></i
-    ></a>
+    ></button>
    </div>
   </main>
  </body>
