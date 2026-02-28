@@ -1,107 +1,178 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viral Video List</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viral Video List</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 0;
-        }
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
 
-        header {
-            background-color: #111827;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
+    body {
+        background-color: #f3f4f6;
+    }
 
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 20px;
-        }
+    /* Navbar */
+    nav {
+        background-color: #111827;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+    }
 
-        .video-card {
-            background-color: white;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: 0.3s;
-        }
+    nav h2 {
+        font-size: 18px;
+    }
 
-        .video-card:hover {
-            transform: translateY(-5px);
-        }
+    nav ul {
+        list-style: none;
+        display: flex;
+        gap: 20px;
+    }
 
-        .video-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+    nav ul li a {
+        text-decoration: none;
+        color: white;
+        font-size: 14px;
+    }
 
-        .video-description {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 10px;
-        }
+    nav ul li a:hover {
+        color: #60a5fa;
+    }
 
-        .video-link {
-            text-decoration: none;
-            background-color: #2563eb;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
+    /* Container */
+    .container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 20px;
+    }
 
-        .video-link:hover {
-            background-color: #1e40af;
-        }
+    /* Grid Layout */
+    .video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
 
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #777;
-            font-size: 13px;
-        }
-    </style>
+    .video-card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: 0.3s;
+    }
+
+    .video-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .video-thumbnail {
+        width: 100%;
+        height: 150px;
+        background-color: #d1d5db;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .video-title {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .video-description {
+        font-size: 13px;
+        color: #555;
+        margin-bottom: 10px;
+    }
+
+    .video-link {
+        text-decoration: none;
+        background-color: #2563eb;
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        display: inline-block;
+    }
+
+    .video-link:hover {
+        background-color: #1e40af;
+    }
+
+    footer {
+        text-align: center;
+        padding: 20px;
+        font-size: 13px;
+        color: #777;
+    }
+</style>
 </head>
+
 <body>
 
-    <header>
-        <h1>🔥 List Video Viral</h1>
-        <p>Kumpulan video yang lagi trending</p>
-    </header>
+<nav>
+    <h2>🔥 ViralHub</h2>
+    <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Trending</a></li>
+        <li><a href="#">Kategori</a></li>
+        <li><a href="#">Tentang</a></li>
+    </ul>
+</nav>
 
-    <div class="container">
+<div class="container">
+    <div class="video-grid">
 
         <div class="video-card">
-            <div class="video-title">Judul Video Viral 1</div>
+            <div class="video-thumbnail"></div>
+            <div class="video-title">Video Viral 1</div>
             <div class="video-description">
-                Deskripsi singkat tentang video ini. Kenapa viral, siapa yang upload, dll.
+                Deskripsi singkat video yang sedang trending.
             </div>
-            <a href="#" class="video-link" target="_blank">Tonton Sekarang</a>
+            <a href="#" class="video-link" target="_blank">Tonton</a>
         </div>
 
         <div class="video-card">
-            <div class="video-title">Judul Video Viral 2</div>
+            <div class="video-thumbnail"></div>
+            <div class="video-title">Video Viral 2</div>
             <div class="video-description">
-                Penjelasan singkat video kedua. Bisa kamu isi sendiri sesuai kebutuhan.
+                Konten lucu, unik, dan bikin ramai timeline.
             </div>
-            <a href="#" class="video-link" target="_blank">Tonton Sekarang</a>
+            <a href="#" class="video-link" target="_blank">Tonton</a>
+        </div>
+
+        <div class="video-card">
+            <div class="video-thumbnail"></div>
+            <div class="video-title">Video Viral 3</div>
+            <div class="video-description">
+                Video yang banyak dibagikan di media sosial.
+            </div>
+            <a href="#" class="video-link" target="_blank">Tonton</a>
+        </div>
+
+        <div class="video-card">
+            <div class="video-thumbnail"></div>
+            <div class="video-title">Video Viral 4</div>
+            <div class="video-description">
+                Sedang trending dan masuk FYP.
+            </div>
+            <a href="#" class="video-link" target="_blank">Tonton</a>
         </div>
 
     </div>
+</div>
 
-    <footer>
-        © 2026 Proyek Web Video Viral | Dibuat dengan HTML sederhana
-    </footer>
+<footer>
+    © 2026 ViralHub Project
+</footer>
 
 </body>
 </html>
