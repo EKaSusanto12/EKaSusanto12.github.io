@@ -26,6 +26,26 @@ const contextMenu = document.querySelector("#video-context-menu");
 
 let videos = [];
 let collections = [];
+const hlsThumbnailCache = new Map();
+let activeHlsPlayer = null;
+
+const hlsThumbnailObserver =
+    "IntersectionObserver" in window
+        ? new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) return;
+
+                    hlsThumbnailObserver.unobserve(entry.target);
+                    loadHlsThumbnail(
+                        entry.target,
+                        entry.target.dataset.hlsUrl
+                    );
+                });
+            },
+            { rootMargin: "160px" }
+        )
+        : null;
 
 let activeVideoId = null;
 let activeCollectionId = null;
@@ -222,6 +242,12 @@ function getVideoInfo(rawUrl) {
     }
 
     else if (
+        /\.m3u8$/i.test(url.pathname)
+    ) {
+        kind = "hls";
+    }
+
+    else if (
         /\.(mp4|webm|ogg|mov|m4v)$/i.test(
             url.pathname
         )
@@ -236,6 +262,114 @@ function getVideoInfo(rawUrl) {
         thumbnail,
         host
     };
+}
+
+
+async function generateHlsThumbnail(url) {
+    const video = document.createElement("video");
+
+    video.crossOrigin = "anonymous";
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    video.style.cssText =
+        "position:fixed;left:-10000px;top:0;width:320px;height:180px;opacity:0;pointer-events:none";
+
+    document.body.append(video);
+
+    let hls = null;
+
+    try {
+        const frameReady = new Promise((resolve, reject) => {
+            const timeout = setTimeout(
+                () => finish(reject, new Error("HLS frame timed out")),
+                12000
+            );
+
+            const finish = (callback, value) => {
+                clearTimeout(timeout);
+                video.removeEventListener("loadeddata", onLoaded);
+                video.removeEventListener("error", onError);
+                callback(value);
+            };
+
+            const onLoaded = () => {
+                requestAnimationFrame(() =>
+                    requestAnimationFrame(() => finish(resolve))
+                );
+            };
+
+            const onError = () =>
+                finish(reject, new Error("HLS frame could not load"));
+
+            video.addEventListener("loadeddata", onLoaded, { once: true });
+            video.addEventListener("error", onError, { once: true });
+        });
+
+        if (window.Hls?.isSupported()) {
+            hls = new window.Hls({ maxBufferLength: 8 });
+            hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
+                video.play().catch(() => {});
+            });
+            hls.loadSource(url);
+            hls.attachMedia(video);
+        } else if (
+            video.canPlayType("application/vnd.apple.mpegurl")
+        ) {
+            video.src = url;
+            video.play().catch(() => {});
+        } else {
+            return null;
+        }
+
+        await frameReady;
+
+        const width = 480;
+        const aspectRatio =
+            video.videoWidth && video.videoHeight
+                ? video.videoWidth / video.videoHeight
+                : 16 / 9;
+        const canvas = document.createElement("canvas");
+
+        canvas.width = width;
+        canvas.height = Math.round(width / aspectRatio);
+        canvas
+            .getContext("2d")
+            .drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        return canvas.toDataURL("image/jpeg", 0.78);
+    } catch (error) {
+        console.warn("Tidak dapat membuat thumbnail HLS:", error);
+        return null;
+    } finally {
+        hls?.destroy();
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+        video.remove();
+    }
+}
+
+
+function loadHlsThumbnail(poster, url) {
+    if (!url) return;
+
+    if (!hlsThumbnailCache.has(url)) {
+        hlsThumbnailCache.set(
+            url,
+            generateHlsThumbnail(url)
+        );
+    }
+
+    hlsThumbnailCache.get(url).then((thumbnail) => {
+        if (!thumbnail || !poster.isConnected) return;
+
+        const image = document.createElement("img");
+        image.src = thumbnail;
+        image.alt = "";
+        image.loading = "lazy";
+        poster.prepend(image);
+    });
 }
 
 
@@ -270,6 +404,16 @@ function createPoster(video, index, label, onClick) {
         };
 
         poster.append(image);
+    }
+
+    if (info.kind === "hls") {
+        poster.dataset.hlsUrl = info.url;
+
+        if (hlsThumbnailObserver) {
+            hlsThumbnailObserver.observe(poster);
+        } else {
+            loadHlsThumbnail(poster, info.url);
+        }
     }
 
     const play = document.createElement("span");
@@ -950,12 +1094,17 @@ async function openPlayer(video) {
     const info =
         getVideoInfo(video.url);
 
+    if (activeHlsPlayer) {
+        activeHlsPlayer.destroy();
+        activeHlsPlayer = null;
+    }
+
     frame.replaceChildren();
 
     title.textContent =
         video.title;
 
-    if (info.kind === "file") {
+    if (info.kind === "file" || info.kind === "hls") {
         const player =
             document.createElement(
                 "video"
@@ -967,6 +1116,27 @@ async function openPlayer(video) {
         player.controls = true;
         player.autoplay = true;
         player.playsInline = true;
+
+        if (info.kind === "hls") {
+            if (window.Hls?.isSupported()) {
+                activeHlsPlayer = new window.Hls();
+                activeHlsPlayer.loadSource(info.url);
+                activeHlsPlayer.attachMedia(player);
+            } else if (
+                player.canPlayType("application/vnd.apple.mpegurl")
+            ) {
+                player.src = info.url;
+            } else {
+                const message = document.createElement("p");
+                message.textContent =
+                    "Browser ini tidak mendukung pemutaran HLS.";
+                frame.append(message);
+                playerDialog.showModal();
+                return;
+            }
+        } else {
+            player.src = info.url;
+        }
 
         frame.append(player);
     }
@@ -1073,6 +1243,11 @@ document
 playerDialog.addEventListener(
     "close",
     () => {
+        if (activeHlsPlayer) {
+            activeHlsPlayer.destroy();
+            activeHlsPlayer = null;
+        }
+
         document
             .querySelector(
                 "#player-frame"
