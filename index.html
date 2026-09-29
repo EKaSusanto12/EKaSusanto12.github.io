@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="id">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f4f1e8">
+	<title>Boundhub — ruang video</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<header class="site-header">
+		<a class="site-title" href="#home" aria-label="Boundhub, beranda">
+			<span class="brand-mark" aria-hidden="true">b.</span>
+			<span>boundhub<span class="brand-dot">.</span></span>
+		</a>
+		<nav class="desktop-nav" aria-label="Navigasi utama">
+			<a class="nav-link active" href="#home">Beranda</a>
+			<a class="nav-link" href="#collections">Koleksi</a>
+			<button class="add-button" type="button" data-open-add><span aria-hidden="true">＋</span> Add video</button>
+		</nav>
+		<details class="mobile-nav">
+			<summary aria-label="Buka menu navigasi">
+				<span></span>
+				<span></span>
+				<span></span>
+			</summary>
+			<nav aria-label="Navigasi utama">
+				<a href="#home">Beranda</a>
+				<a href="#collections">Koleksi</a>
+				<button class="add-button" type="button" data-open-add><span aria-hidden="true">＋</span> Add video</button>
+			</nav>
+		</details>
+	</header>
+
+	<main id="home">
+		<section class="library view-panel" id="library" aria-label="Daftar video">
+			<p class="form-error load-error" id="load-error" role="alert" hidden></p>
+			<div class="video-grid" id="video-grid" aria-live="polite"></div>
+		</section>
+		<section class="library view-panel collections-view" id="collections-view" aria-labelledby="collections-title" hidden>
+			<div class="section-heading">
+				<h1 id="collections-title">Koleksi</h1>
+				<button class="add-button" type="button" data-open-collection><span aria-hidden="true">＋</span> Tambah koleksi</button>
+			</div>
+			<div class="collection-grid" id="collection-grid" aria-live="polite"></div>
+		</section>
+		<section class="library view-panel collection-detail" id="collection-detail" aria-labelledby="collection-detail-title" hidden>
+			<button class="back-button" type="button" data-back-collections><span aria-hidden="true">←</span> Semua koleksi</button>
+			<div class="section-heading detail-heading">
+				<h1 id="collection-detail-title"></h1>
+				<p id="collection-detail-count"></p>
+			</div>
+			<div class="video-grid" id="collection-video-grid" aria-live="polite"></div>
+		</section>
+	</main>
+
+	<dialog class="app-dialog add-dialog" id="add-dialog" aria-labelledby="add-title">
+		<form class="dialog-content" id="add-form">
+			<button class="dialog-close" type="button" data-close-dialog aria-label="Tutup">×</button>
+			<p class="eyebrow section-eyebrow">SATU TAUTAN LAGI</p>
+			<h2 id="add-title">Tambah video<span class="brand-dot">.</span></h2>
+			<p class="dialog-description">Tempel tautan video dan beri judul supaya mudah ditemukan.</p>
+			<label for="video-title">Judul video</label>
+			<input id="video-title" name="title" type="text" placeholder="Contoh: Ide untuk akhir pekan" maxlength="100" required>
+			<label for="video-url">Tautan video</label>
+			<input id="video-url" name="url" type="url" placeholder="https://..." required>
+			<p class="field-hint">Mendukung YouTube, Vimeo, dan tautan file video langsung.</p>
+			<p class="form-error" id="form-error" role="alert"></p>
+			<button class="submit-button" type="submit">Simpan ke koleksi <span aria-hidden="true">↗</span></button>
+		</form>
+	</dialog>
+
+	<dialog class="app-dialog add-dialog" id="collection-dialog" aria-labelledby="collection-dialog-title">
+		<form class="dialog-content" id="collection-form">
+			<button class="dialog-close" type="button" data-close-dialog aria-label="Tutup">×</button>
+			<p class="eyebrow section-eyebrow">SUSUN TONTONANMU</p>
+			<h2 id="collection-dialog-title">Tambah koleksi<span class="brand-dot">.</span></h2>
+			<p class="dialog-description">Beri nama koleksi baru. Sampulnya akan mengikuti video yang paling sering diputar.</p>
+			<label for="collection-title-input">Judul koleksi</label>
+			<input id="collection-title-input" name="title" type="text" placeholder="Contoh: Film untuk akhir pekan" maxlength="60" required>
+			<p class="form-error" id="collection-error" role="alert"></p>
+			<button class="submit-button" type="submit">Buat koleksi <span aria-hidden="true">↗</span></button>
+		</form>
+	</dialog>
+
+	<dialog class="app-dialog add-dialog" id="membership-dialog" aria-labelledby="membership-title">
+		<form class="dialog-content" id="membership-form">
+			<button class="dialog-close" type="button" data-close-dialog aria-label="Tutup">×</button>
+			<p class="eyebrow section-eyebrow">ATUR KOLEKSI</p>
+			<h2 id="membership-title">Tambahkan ke koleksi<span class="brand-dot">.</span></h2>
+			<div class="collection-options" id="collection-options"></div>
+			<p class="form-error" id="membership-error" role="alert"></p>
+			<button class="submit-button" type="submit">Simpan pilihan <span aria-hidden="true">↗</span></button>
+		</form>
+	</dialog>
+
+	<div class="context-menu" id="video-context-menu" role="menu" aria-label="Pilihan video" hidden>
+		<button type="button" role="menuitem" data-context-action="collection">Tambahkan ke koleksi</button>
+		<button type="button" role="menuitem" data-context-action="edit">Edit</button>
+		<button class="context-delete" type="button" role="menuitem" data-context-action="delete">Hapus</button>
+	</div>
+
+	<dialog class="app-dialog player-dialog" id="player-dialog" aria-label="Pemutar video">
+		<button class="dialog-close player-close" type="button" data-close-dialog aria-label="Tutup pemutar">×</button>
+		<div class="player-frame" id="player-frame"></div>
+		<p class="player-title" id="player-title"></p>
+	</dialog>
+
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<script src="script.js" defer></script>
+</body>
+</html>
