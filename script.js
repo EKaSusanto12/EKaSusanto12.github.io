@@ -23,6 +23,7 @@ const membershipForm = document.querySelector("#membership-form");
 const membershipError = document.querySelector("#membership-error");
 
 const contextMenu = document.querySelector("#video-context-menu");
+const collectionContextMenu = document.querySelector("#collection-context-menu");
 
 let videos = [];
 let collections = [];
@@ -49,7 +50,9 @@ const hlsThumbnailObserver =
 
 let activeVideoId = null;
 let activeCollectionId = null;
+let activeContextCollectionId = null;
 let editingVideoId = null;
+let editingCollectionId = null;
 let membershipVideoId = null;
 let resumeMembershipAfterCollection = false;
 
@@ -186,6 +189,45 @@ async function insertCollection(collection) {
 
     if (error) {
         console.error("Gagal menambahkan koleksi:", error);
+        throw error;
+    }
+}
+
+
+async function updateCollection(collection) {
+    const { error } = await supabaseClient
+        .from("collections")
+        .update({ title: collection.title })
+        .eq("id", collection.id);
+
+    if (error) {
+        console.error("Gagal memperbarui koleksi:", error);
+        throw error;
+    }
+}
+
+
+async function updateVideoCollections(videoId, collectionIds) {
+    const { error } = await supabaseClient
+        .from("videos")
+        .update({ collection_ids: collectionIds })
+        .eq("id", videoId);
+
+    if (error) {
+        console.error("Gagal memperbarui koleksi video:", error);
+        throw error;
+    }
+}
+
+
+async function deleteCollectionRecord(collectionId) {
+    const { error } = await supabaseClient
+        .from("collections")
+        .delete()
+        .eq("id", collectionId);
+
+    if (error) {
+        console.error("Gagal menghapus koleksi:", error);
         throw error;
     }
 }
@@ -662,12 +704,53 @@ function renderCollections() {
                 count.textContent =
                     `${members.length} video`;
 
+                const menuButton =
+                    document.createElement(
+                        "button"
+                    );
+
+                menuButton.className = "card-menu-button";
+                menuButton.type = "button";
+                menuButton.textContent = "···";
+                menuButton.setAttribute(
+                    "aria-label",
+                    `Pilihan untuk koleksi ${collection.title}`
+                );
+                menuButton.setAttribute("aria-haspopup", "menu");
+                menuButton.addEventListener(
+                    "click",
+                    (event) => {
+                        event.stopPropagation();
+                        const bounds = menuButton.getBoundingClientRect();
+                        showCollectionContextMenu(
+                            collection,
+                            event.clientX || bounds.right,
+                            event.clientY || bounds.bottom
+                        );
+                    }
+                );
+
+                card.addEventListener(
+                    "contextmenu",
+                    (event) => {
+                        event.preventDefault();
+                        showCollectionContextMenu(
+                            collection,
+                            event.clientX,
+                            event.clientY
+                        );
+                    }
+                );
+
                 details.append(
                     title,
                     count
                 );
 
-                card.append(details);
+                card.append(
+                    menuButton,
+                    details
+                );
 
                 return card;
             }
@@ -799,18 +882,13 @@ function showCollection(id) {
    CONTEXT MENU
 ========================================================= */
 
-function showContextMenu(video, x, y) {
-    activeVideoId = video.id;
+function positionContextMenu(menu, x, y, focusSelector) {
+    menu.hidden = false;
 
-    contextMenu.hidden = false;
+    const menuWidth = menu.offsetWidth;
+    const menuHeight = menu.offsetHeight;
 
-    const menuWidth =
-        contextMenu.offsetWidth;
-
-    const menuHeight =
-        contextMenu.offsetHeight;
-
-    contextMenu.style.left =
+    menu.style.left =
         `${Math.max(
             8,
             Math.min(
@@ -821,7 +899,7 @@ function showContextMenu(video, x, y) {
             )
         )}px`;
 
-    contextMenu.style.top =
+    menu.style.top =
         `${Math.max(
             8,
             Math.min(
@@ -832,16 +910,41 @@ function showContextMenu(video, x, y) {
             )
         )}px`;
 
-    contextMenu
+    menu
         .querySelector(
-            "[data-context-action='collection']"
+            focusSelector
         )
         ?.focus();
 }
 
 
+function showContextMenu(video, x, y) {
+    activeVideoId = video.id;
+    collectionContextMenu.hidden = true;
+    positionContextMenu(
+        contextMenu,
+        x,
+        y,
+        "[data-context-action='collection']"
+    );
+}
+
+
+function showCollectionContextMenu(collection, x, y) {
+    activeContextCollectionId = collection.id;
+    contextMenu.hidden = true;
+    positionContextMenu(
+        collectionContextMenu,
+        x,
+        y,
+        "[data-collection-action='edit']"
+    );
+}
+
+
 function hideContextMenu() {
     contextMenu.hidden = true;
+    collectionContextMenu.hidden = true;
 }
 
 
@@ -961,10 +1064,35 @@ function openMembershipDialog(video) {
    COLLECTION DIALOG
 ========================================================= */
 
-function openCollectionDialog() {
+function openCollectionDialog(collection = null) {
     collectionForm.reset();
 
+    editingCollectionId = collection?.id || null;
     collectionError.textContent = "";
+
+    document.querySelector(
+        "#collection-dialog-title"
+    ).innerHTML = editingCollectionId
+        ? 'Edit koleksi<span class="brand-dot">.</span>'
+        : 'Tambah koleksi<span class="brand-dot">.</span>';
+
+    document.querySelector(
+        "#collection-form .submit-button"
+    ).innerHTML = editingCollectionId
+        ? 'Simpan perubahan <span aria-hidden="true">↗</span>'
+        : 'Buat koleksi <span aria-hidden="true">↗</span>';
+
+    document.querySelector(
+        "#collection-form .dialog-description"
+    ).textContent = editingCollectionId
+        ? "Perbarui nama koleksi ini."
+        : "Beri nama koleksi baru. Sampulnya akan mengikuti video yang paling sering diputar.";
+
+    if (collection) {
+        document.querySelector(
+            "#collection-title-input"
+        ).value = collection.title;
+    }
 
     collectionDialog.showModal();
 
@@ -1264,12 +1392,13 @@ playerDialog.addEventListener(
 document.addEventListener(
     "click",
     (event) => {
-        if (
-            !contextMenu.hidden &&
-            !contextMenu.contains(
-                event.target
-            )
-        ) {
+        const insideVideoMenu =
+            !contextMenu.hidden && contextMenu.contains(event.target);
+        const insideCollectionMenu =
+            !collectionContextMenu.hidden &&
+            collectionContextMenu.contains(event.target);
+
+        if (!insideVideoMenu && !insideCollectionMenu) {
             hideContextMenu();
         }
     }
@@ -1424,6 +1553,31 @@ contextMenu.addEventListener(
 );
 
 
+collectionContextMenu.addEventListener(
+    "click",
+    (event) => {
+        const action = event.target.closest(
+            "[data-collection-action]"
+        )?.dataset.collectionAction;
+        const collection = collections.find(
+            (item) => item.id === activeContextCollectionId
+        );
+
+        hideContextMenu();
+
+        if (!collection || !action) return;
+
+        if (action === "edit") {
+            openCollectionDialog(collection);
+        }
+
+        if (action === "delete") {
+            deleteCollection(collection);
+        }
+    }
+);
+
+
 /* =========================================================
    MEMBERSHIP FORM
 ========================================================= */
@@ -1503,8 +1657,7 @@ collectionForm.addEventListener(
         if (!title) return;
 
         const collection = {
-            id:
-                crypto.randomUUID(),
+            id: editingCollectionId || crypto.randomUUID(),
             title
         };
 
@@ -1512,15 +1665,20 @@ collectionForm.addEventListener(
             "";
 
         try {
-            await insertCollection(
-                collection
-            );
-
-            collections.unshift(
-                collection
-            );
+            if (editingCollectionId) {
+                await updateCollection(collection);
+                collections = collections.map((item) =>
+                    item.id === collection.id ? collection : item
+                );
+            } else {
+                await insertCollection(collection);
+                collections.unshift(collection);
+            }
 
             renderCollections();
+            if (currentView === "collection-detail") {
+                renderCollectionDetail();
+            }
 
             collectionDialog.close();
         } catch {
@@ -1529,6 +1687,57 @@ collectionForm.addEventListener(
         }
     }
 );
+
+
+async function deleteCollection(collection) {
+    const confirmed = window.confirm(
+        `Hapus koleksi "${collection.title}"? Video di dalamnya tidak akan dihapus.`
+    );
+
+    if (!confirmed) return;
+
+    const affectedVideos = videos.filter((video) =>
+        video.collectionIds.includes(collection.id)
+    );
+    const updatedVideos = [];
+
+    try {
+        for (const video of affectedVideos) {
+            await updateVideoCollections(
+                video.id,
+                video.collectionIds.filter((id) => id !== collection.id)
+            );
+            updatedVideos.push(video);
+        }
+
+        await deleteCollectionRecord(collection.id);
+    } catch {
+        await Promise.allSettled(
+            updatedVideos.map((video) =>
+                updateVideoCollections(video.id, video.collectionIds)
+            )
+        );
+        window.alert("Gagal menghapus koleksi. Silakan coba lagi.");
+        return;
+    }
+
+    videos = videos.map((video) => ({
+        ...video,
+        collectionIds: video.collectionIds.filter(
+            (id) => id !== collection.id
+        )
+    }));
+    collections = collections.filter(
+        (item) => item.id !== collection.id
+    );
+
+    if (activeCollectionId === collection.id) {
+        activeCollectionId = null;
+        showView("collections");
+    } else {
+        renderVideos();
+    }
+}
 
 
 /* =========================================================

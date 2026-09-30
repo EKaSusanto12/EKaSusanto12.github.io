@@ -257,7 +257,9 @@ input {
 }
 
 .video-card:hover .card-menu-button,
-.video-card:focus-within .card-menu-button {
+.video-card:focus-within .card-menu-button,
+.collection-card:hover .card-menu-button,
+.collection-card:focus-within .card-menu-button {
 	opacity: 1;
 }
 
@@ -293,6 +295,7 @@ input {
 
 .collection-card {
 	min-width: 0;
+	position: relative;
 }
 
 .collection-art {
