@@ -59,6 +59,8 @@ let resumeMembershipAfterCollection = false;
 let currentView =
     location.hash === "#collections"
         ? "collections"
+        : location.hash === "#about"
+        ? "about"
         : "home";
 
 
@@ -833,21 +835,27 @@ function showView(view) {
     ).hidden = view !== "collections";
 
     document.querySelector(
+        "#about-view"
+    ).hidden = view !== "about";
+
+    document.querySelector(
         "#collection-detail"
     ).hidden =
         view !== "collection-detail";
 
+    const activeView =
+        view === "collection-detail"
+            ? "collections"
+            : view;
+
     document
-        .querySelectorAll(".nav-link")
+        .querySelectorAll(
+            ".nav-link, .mobile-nav nav a[href^='#']"
+        )
         .forEach((link) => {
             link.classList.toggle(
                 "active",
-                link.hash ===
-                    (
-                        view === "home"
-                            ? "#home"
-                            : "#collections"
-                    )
+                link.hash === `#${activeView}`
             );
         });
 
@@ -1432,6 +1440,8 @@ window.addEventListener(
             location.hash ===
                 "#collections"
                 ? "collections"
+                : location.hash === "#about"
+                ? "about"
                 : "home"
         )
 );
@@ -1439,7 +1449,7 @@ window.addEventListener(
 
 document
     .querySelectorAll(
-        ".nav-link, .mobile-nav nav a"
+        ".nav-link, .mobile-nav nav a[href^='#']"
     )
     .forEach((link) => {
         link.addEventListener(
@@ -1451,6 +1461,8 @@ document
                     link.hash ===
                     "#collections"
                         ? "collections"
+                        : link.hash === "#about"
+                        ? "about"
                         : "home";
 
                 history.replaceState(
@@ -1469,6 +1481,39 @@ document
                 if (mobileNav) {
                     mobileNav.open =
                         false;
+                }
+            }
+        );
+    });
+
+
+document.addEventListener(
+    "click",
+    (event) => {
+        const mobileNav =
+            document.querySelector(".mobile-nav");
+
+        if (
+            mobileNav?.open &&
+            !mobileNav.contains(event.target)
+        ) {
+            mobileNav.open = false;
+        }
+    }
+);
+
+
+document
+    .querySelectorAll(".mobile-about a")
+    .forEach((link) => {
+        link.addEventListener(
+            "click",
+            () => {
+                const mobileNav =
+                    document.querySelector(".mobile-nav");
+
+                if (mobileNav) {
+                    mobileNav.open = false;
                 }
             }
         );
