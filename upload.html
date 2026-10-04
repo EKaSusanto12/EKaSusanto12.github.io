@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Boundhub Upload</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --green-900: #d9f3df;
+      --green-800: #bfe8c8;
+      --green-700: #7ec89f;
+      --green-600: #5cb17f;
+      --green-500: #34583d;
+      --green-100: rgba(124, 200, 159, 0.14);
+      --bg-main: #0e1511;
+      --bg-panel: #121b17;
+      --bg-soft: #1a2822;
+      --bg-input: #17231d;
+      --text: #edf7f0;
+      --muted: #9fb7a8;
+      --white: #ffffff;
+      --border: rgba(126, 200, 159, 0.18);
+      --shadow: rgba(0, 0, 0, 0.32);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      background:
+        radial-gradient(circle at top left, rgba(52, 88, 61, 0.34), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(90, 181, 127, 0.12), transparent 25%),
+        linear-gradient(135deg, #0b120d 0%, #101a14 45%, #0d1511 100%);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+    }
+
+    .container {
+      width: min(100%, 620px);
+      margin: auto;
+      background: rgba(18, 27, 23, 0.92);
+      padding: 32px 28px 26px;
+      border-radius: 28px;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 60px var(--shadow);
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, #34583d, #4d8d66, #7ec89f);
+    }
+
+    .header {
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 3vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--green-900);
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .upload-box {
+      margin-top: 24px;
+      background: rgba(52, 88, 61, 0.08);
+      border: 1.5px dashed rgba(126, 200, 159, 0.35);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      margin: 0;
+      padding: 18px 16px;
+      border: 1px solid rgba(126, 200, 159, 0.2);
+      border-radius: 14px;
+      background: rgba(23, 35, 29, 0.9);
+      color: var(--text);
+      font-size: 0.98rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input[type="file"]:focus {
+      outline: none;
+      border-color: rgba(126, 200, 159, 0.6);
+      box-shadow: 0 0 0 4px rgba(52, 88, 61, 0.18);
+    }
+
+    input[type="file"]::file-selector-button {
+      margin-right: 14px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--green-500), var(--green-600));
+      color: var(--white);
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+      opacity: 0.96;
+      transform: translateY(-1px);
+    }
+
+    button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--green-500), var(--green-600));
+      color: var(--white);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      box-shadow: 0 12px 24px rgba(52, 88, 61, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 30px rgba(52, 88, 61, 0.38);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    progress {
+      width: 100%;
+      height: 14px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(126, 200, 159, 0.14);
+    }
+
+    progress::-webkit-progress-bar {
+      background: rgba(126, 200, 159, 0.14);
+      border-radius: 999px;
+    }
+
+    progress::-webkit-progress-value {
+      background: linear-gradient(90deg, #5cb17f, #34583d);
+      border-radius: 999px;
+    }
+
+    #progressText {
+      margin-top: 10px;
+      font-weight: 700;
+      color: var(--green-700);
+      font-size: 0.96rem;
+    }
+
+    #status {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(126, 200, 159, 0.08);
+      border-left: 4px solid var(--green-700);
+      color: var(--green-900);
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.55;
+      box-shadow: inset 0 0 0 1px rgba(126, 200, 159, 0.06);
+    }
+
+    #result {
+      margin-top: 22px;
+      padding: 18px 18px 12px;
+      background: linear-gradient(135deg, rgba(52, 88, 61, 0.18), rgba(23, 35, 29, 0.88));
+      border: 1px solid rgba(126, 200, 159, 0.2);
+      border-radius: 16px;
+      display: none;
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+    }
+
+    #result strong {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--green-900);
+      font-size: 1.02rem;
+    }
+
+    #result p {
+      margin: 0 0 10px;
+      color: var(--text);
+      font-size: 0.96rem;
+    }
+
+    #result span {
+      color: var(--green-800);
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    #result a {
+      word-break: break-all;
+      color: var(--green-700);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="header">
+      <h1>Boundhub Upload</h1>
+      <p class="subtitle">Unggah file dengan proses yang cepat, aman, dan modern.</p>
+    </div>
+
+    <div class="upload-box">
+      <input
+        type="file"
+        id="fileInput"
+      >
+    </div>
+
+    <button
+      id="uploadButton"
+    >
+      Upload
+    </button>
+
+    <progress
+      id="progress"
+      value="0"
+      max="100"
+    ></progress>
+
+    <div id="progressText">
+      0%
+    </div>
+
+    <div id="status">
+      Pilih file terlebih dahulu.
+    </div>
+
+    <div id="result">
+      <strong>Upload berhasil!</strong>
+
+      <p>
+        File:
+        <span id="resultFile"></span>
+      </p>
+
+      <p>
+        Key:
+        <span id="resultKey"></span>
+      </p>
+    </div>
+
+  </div>
+
+
+<script>
+
+const WORKER_URL =
+  "https://boundhub-upload.ekasusanto154.workers.dev";
+
+
+const CHUNK_SIZE =
+  10 * 1024 * 1024;
+
+
+const fileInput =
+  document.getElementById(
+    "fileInput"
+  );
+
+
+const uploadButton =
+  document.getElementById(
+    "uploadButton"
+  );
+
+
+const progress =
+  document.getElementById(
+    "progress"
+  );
+
+
+const progressText =
+  document.getElementById(
+    "progressText"
+  );
+
+
+const status =
+  document.getElementById(
+    "status"
+  );
+
+
+const result =
+  document.getElementById(
+    "result"
+  );
+
+
+const resultFile =
+  document.getElementById(
+    "resultFile"
+  );
+
+
+const resultKey =
+  document.getElementById(
+    "resultKey"
+  );
+
+
+uploadButton.addEventListener(
+  "click",
+  uploadFile
+);
+
+
+async function uploadFile() {
+
+  const file =
+    fileInput.files[0];
+
+
+  if (!file) {
+
+    status.textContent =
+      "❌ Pilih file terlebih dahulu.";
+
+    return;
+  }
+
+
+  uploadButton.disabled =
+    true;
+
+
+  result.style.display =
+    "none";
+
+
+  progress.value = 0;
+
+  progressText.textContent =
+    "0%";
+
+
+  try {
+
+    // =================================
+    // CREATE MULTIPART UPLOAD
+    // =================================
+
+    status.textContent =
+      "Membuat upload...";
+
+
+    const createResponse =
+      await fetch(
+        WORKER_URL +
+        "/upload/create",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            filename:
+              file.name,
+
+            contentType:
+              file.type ||
+              "application/octet-stream"
+          })
+        }
+      );
+
+
+    const createData =
+      await createResponse.json();
+
+
+    if (!createResponse.ok) {
+
+      throw new Error(
+        createData.error ||
+        "Gagal membuat upload."
+      );
+
+    }
+
+
+    const uploadId =
+      createData.uploadId;
+
+
+    const key =
+      createData.key;
+
+
+    // =================================
+    // HITUNG PART
+    // =================================
+
+    const totalParts =
+      Math.ceil(
+        file.size /
+        CHUNK_SIZE
+      );
+
+
+    const parts = [];
+
+
+    // =================================
+    // UPLOAD PART
+    // =================================
+
+    for (
+      let partNumber = 1;
+      partNumber <= totalParts;
+      partNumber++
+    ) {
+
+      const start =
+        (partNumber - 1) *
+        CHUNK_SIZE;
+
+
+      const end =
+        Math.min(
+          start + CHUNK_SIZE,
+          file.size
+        );
+
+
+      const chunk =
+        file.slice(
+          start,
+          end
+        );
+
+
+      const percent =
+        Math.round(
+          ((partNumber - 1) /
+            totalParts) *
+            100
+        );
+
+
+      progress.value =
+        percent;
+
+
+      progressText.textContent =
+        percent + "%";
+
+
+      status.textContent =
+        "Mengupload bagian " +
+        partNumber +
+        " dari " +
+        totalParts +
+        "...";
+
+
+      const response =
+        await fetch(
+          WORKER_URL +
+          "/upload/part" +
+          "?uploadId=" +
+          encodeURIComponent(
+            uploadId
+          ) +
+          "&key=" +
+          encodeURIComponent(
+            key
+          ) +
+          "&partNumber=" +
+          partNumber,
+          {
+            method: "PUT",
+
+            headers: {
+              "Content-Type":
+                "application/octet-stream"
+            },
+
+            body: chunk
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error ||
+          "Gagal mengupload part " +
+          partNumber
+        );
+
+      }
+
+
+      parts.push({
+        partNumber:
+          partNumber,
+
+        etag:
+          data.etag
+      });
+
+
+      const currentPercent =
+        Math.round(
+          (partNumber /
+            totalParts) *
+            100
+        );
+
+
+      progress.value =
+        currentPercent;
+
+
+      progressText.textContent =
+        currentPercent + "%";
+    }
+
+
+    // =================================
+    // COMPLETE
+    // =================================
+
+    status.textContent =
+      "Menyelesaikan upload...";
+
+
+    const completeResponse =
+      await fetch(
+        WORKER_URL +
+        "/upload/complete",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+
+            uploadId:
+              uploadId,
+
+            key:
+              key,
+
+            parts:
+              parts
+
+          })
+        }
+      );
+
+
+    const completeData =
+      await completeResponse.json();
+
+
+    if (!completeResponse.ok) {
+
+      throw new Error(
+        completeData.error ||
+        "Gagal menyelesaikan upload."
+      );
+
+    }
+
+
+    // =================================
+    // SELESAI
+    // =================================
+
+    progress.value =
+      100;
+
+
+    progressText.textContent =
+      "100%";
+
+
+    status.textContent =
+      "✅ Upload berhasil!";
+
+
+    resultFile.textContent =
+      file.name;
+
+
+    resultKey.textContent =
+      completeData.key;
+
+
+    result.style.display =
+      "block";
+
+
+  } catch (error) {
+
+    console.error(error);
+
+
+    status.textContent =
+      "❌ Upload gagal:\n\n" +
+      error.message;
+
+
+  } finally {
+
+    uploadButton.disabled =
+      false;
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
+```
