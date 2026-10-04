@@ -24,23 +24,32 @@ const membershipError = document.querySelector("#membership-error");
 
 const contextMenu = document.querySelector("#video-context-menu");
 const collectionContextMenu = document.querySelector("#collection-context-menu");
+const playerAddCollectionButton = document.querySelector("#player-add-collection");
+const searchForm = document.querySelector("#search-form");
+const searchInput = document.querySelector("#site-search");
+const searchClear = document.querySelector("#search-clear");
+const mobileSearchButton = document.querySelector("#mobile-search-button");
+const siteHeader = document.querySelector(".site-header");
+const sortStatus = document.createElement("span");
 
 let videos = [];
 let collections = [];
-const hlsThumbnailCache = new Map();
+let searchQuery = "";
+const videoThumbnailCache = new Map();
 let activeHlsPlayer = null;
 
-const hlsThumbnailObserver =
+const thumbnailObserver =
     "IntersectionObserver" in window
         ? new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     if (!entry.isIntersecting) return;
 
-                    hlsThumbnailObserver.unobserve(entry.target);
-                    loadHlsThumbnail(
+                    thumbnailObserver.unobserve(entry.target);
+                    loadVideoThumbnail(
                         entry.target,
-                        entry.target.dataset.hlsUrl
+                        entry.target.dataset.thumbnailType,
+                        entry.target.dataset.thumbnailUrl
                     );
                 });
             },
@@ -54,6 +63,7 @@ let activeContextCollectionId = null;
 let editingVideoId = null;
 let editingCollectionId = null;
 let membershipVideoId = null;
+let activePlayerVideo = null;
 let resumeMembershipAfterCollection = false;
 
 let currentView =
@@ -249,6 +259,7 @@ function getVideoInfo(rawUrl) {
     let embedUrl = url.href;
     let kind = "embed";
     let thumbnail = "";
+    let thumbnailType = "";
 
     if (
         host === "youtu.be" ||
@@ -282,6 +293,7 @@ function getVideoInfo(rawUrl) {
         if (id) {
             embedUrl =
                 `https://player.vimeo.com/video/${id}`;
+            thumbnailType = "vimeo";
         }
     }
 
@@ -289,6 +301,7 @@ function getVideoInfo(rawUrl) {
         /\.m3u8$/i.test(url.pathname)
     ) {
         kind = "hls";
+        thumbnailType = "hls";
     }
 
     else if (
@@ -297,6 +310,7 @@ function getVideoInfo(rawUrl) {
         )
     ) {
         kind = "file";
+        thumbnailType = "file";
     }
 
     return {
@@ -304,6 +318,7 @@ function getVideoInfo(rawUrl) {
         embedUrl,
         kind,
         thumbnail,
+        thumbnailType,
         host
     };
 }
@@ -395,23 +410,176 @@ async function generateHlsThumbnail(url) {
 }
 
 
-function loadHlsThumbnail(poster, url) {
-    if (!url) return;
+async function generateVideoFileThumbnail(url) {
+    const video = document.createElement("video");
 
-    if (!hlsThumbnailCache.has(url)) {
-        hlsThumbnailCache.set(
-            url,
-            generateHlsThumbnail(url)
-        );
+    video.crossOrigin = "anonymous";
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    video.style.cssText =
+        "position:fixed;left:-10000px;top:0;width:320px;height:180px;opacity:0;pointer-events:none";
+
+    document.body.append(video);
+
+    try {
+        const metadataReady = new Promise((resolve, reject) => {
+            const timeout = setTimeout(
+                () => finish(reject, new Error("Video metadata timed out")),
+                12000
+            );
+
+            const finish = (callback, value) => {
+                clearTimeout(timeout);
+                video.removeEventListener("loadedmetadata", onLoaded);
+                video.removeEventListener("error", onError);
+                callback(value);
+            };
+
+            const onLoaded = () => finish(resolve);
+            const onError = () =>
+                finish(reject, new Error("Video metadata could not load"));
+
+            video.addEventListener("loadedmetadata", onLoaded, { once: true });
+            video.addEventListener("error", onError, { once: true });
+        });
+
+        video.src = url;
+        video.load();
+        await metadataReady;
+
+        const targetTime =
+            Number.isFinite(video.duration) && video.duration > 1
+                ? 1
+                : 0;
+
+        if (targetTime > 0) {
+            const frameReady = new Promise((resolve, reject) => {
+                const timeout = setTimeout(
+                    () => finish(reject, new Error("Video frame timed out")),
+                    12000
+                );
+
+                const finish = (callback, value) => {
+                    clearTimeout(timeout);
+                    video.removeEventListener("seeked", onLoaded);
+                    video.removeEventListener("error", onError);
+                    callback(value);
+                };
+
+                const onLoaded = () => finish(resolve);
+                const onError = () =>
+                    finish(reject, new Error("Video frame could not load"));
+
+                video.addEventListener("seeked", onLoaded, { once: true });
+                video.addEventListener("error", onError, { once: true });
+            });
+
+            video.currentTime = targetTime;
+            await frameReady;
+        } else if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(
+                    () => finish(reject, new Error("Video frame timed out")),
+                    12000
+                );
+
+                const finish = (callback, value) => {
+                    clearTimeout(timeout);
+                    video.removeEventListener("loadeddata", onLoaded);
+                    video.removeEventListener("error", onError);
+                    callback(value);
+                };
+
+                const onLoaded = () => finish(resolve);
+                const onError = () =>
+                    finish(reject, new Error("Video frame could not load"));
+
+                video.addEventListener("loadeddata", onLoaded, { once: true });
+                video.addEventListener("error", onError, { once: true });
+            });
+        }
+
+        return createVideoThumbnail(video);
+    } catch (error) {
+        console.warn("Tidak dapat membuat thumbnail video:", error);
+        return null;
+    } finally {
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+        video.remove();
+    }
+}
+
+
+function createVideoThumbnail(video) {
+    const width = 480;
+    const aspectRatio =
+        video.videoWidth && video.videoHeight
+            ? video.videoWidth / video.videoHeight
+            : 16 / 9;
+    const canvas = document.createElement("canvas");
+
+    canvas.width = width;
+    canvas.height = Math.round(width / aspectRatio);
+
+    const context = canvas.getContext("2d");
+    if (!context) {
+        throw new Error("Canvas context is unavailable");
     }
 
-    hlsThumbnailCache.get(url).then((thumbnail) => {
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.78);
+}
+
+
+async function generateVimeoThumbnail(url) {
+    try {
+        const response = await fetch(
+            `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(url)}`
+        );
+
+        if (!response.ok) {
+            throw new Error(`Vimeo oEmbed returned ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.thumbnail_url || null;
+    } catch (error) {
+        console.warn("Tidak dapat memuat thumbnail Vimeo:", error);
+        return null;
+    }
+}
+
+
+function loadVideoThumbnail(poster, type, url) {
+    if (!url) return;
+
+    const cacheKey = `${type}:${url}`;
+    if (!videoThumbnailCache.has(cacheKey)) {
+        const generator =
+            type === "hls"
+                ? generateHlsThumbnail
+                : type === "vimeo"
+                ? generateVimeoThumbnail
+                : generateVideoFileThumbnail;
+
+        videoThumbnailCache.set(cacheKey, generator(url));
+    }
+
+    videoThumbnailCache.get(cacheKey).then((thumbnail) => {
         if (!thumbnail || !poster.isConnected) return;
 
         const image = document.createElement("img");
         image.src = thumbnail;
         image.alt = "";
         image.loading = "lazy";
+        image.onerror = () => {
+            image.remove();
+            poster.classList.remove("has-thumbnail");
+        };
+        poster.classList.add("has-thumbnail");
         poster.prepend(image);
     });
 }
@@ -445,18 +613,21 @@ function createPoster(video, index, label, onClick) {
 
         image.onerror = () => {
             image.remove();
+            poster.classList.remove("has-thumbnail");
         };
 
+        poster.classList.add("has-thumbnail");
         poster.append(image);
     }
 
-    if (info.kind === "hls") {
-        poster.dataset.hlsUrl = info.url;
+    if (info.thumbnailType) {
+        poster.dataset.thumbnailType = info.thumbnailType;
+        poster.dataset.thumbnailUrl = info.url;
 
-        if (hlsThumbnailObserver) {
-            hlsThumbnailObserver.observe(poster);
+        if (thumbnailObserver) {
+            thumbnailObserver.observe(poster);
         } else {
-            loadHlsThumbnail(poster, info.url);
+            loadVideoThumbnail(poster, info.thumbnailType, info.url);
         }
     }
 
@@ -552,14 +723,46 @@ function makeCard(video, index) {
 }
 
 
+function sortVideoList(list) {
+    return [...list].sort((first, second) =>
+        first.title.localeCompare(second.title, "id", {
+            sensitivity: "base",
+            numeric: true
+        })
+    );
+}
+
+
+function sortCollectionList(list) {
+    return [...list].sort((first, second) =>
+        first.title.localeCompare(second.title, "id", {
+            sensitivity: "base",
+            numeric: true
+        })
+    );
+}
+
+
 /* =========================================================
    RENDER VIDEO
 ========================================================= */
 
 function renderVideos() {
-    videoGrid.replaceChildren(
-        ...videos.map(makeCard)
+    const matchingVideos = videos.filter((video) =>
+        `${video.title} ${video.url}`
+            .toLocaleLowerCase()
+            .includes(searchQuery)
     );
+
+    videoGrid.replaceChildren(
+        ...sortVideoList(matchingVideos).map(makeCard)
+    );
+
+    if (searchQuery && matchingVideos.length === 0) {
+        videoGrid.append(
+            createSearchEmptyState("video")
+        );
+    }
 
     if (
         currentView ===
@@ -569,6 +772,25 @@ function renderVideos() {
     }
 
     renderCollections();
+}
+
+
+function createSearchEmptyState(type) {
+    const empty = document.createElement("div");
+    empty.className = "search-empty";
+    empty.setAttribute("role", "status");
+
+    const title = document.createElement("strong");
+    title.textContent = "Belum ada hasil";
+
+    const description = document.createElement("p");
+    description.textContent =
+        type === "collection"
+            ? `Tidak ada koleksi yang cocok dengan “${searchInput.value.trim()}”.`
+            : `Tidak ada video yang cocok dengan “${searchInput.value.trim()}”.`;
+
+    empty.append(title, description);
+    return empty;
 }
 
 
@@ -584,8 +806,14 @@ function renderCollections() {
 
     if (!grid) return;
 
+    const matchingCollections = collections.filter((collection) =>
+        collection.title
+            .toLocaleLowerCase()
+            .includes(searchQuery)
+    );
+
     grid.replaceChildren(
-        ...collections.map(
+        ...sortCollectionList(matchingCollections).map(
             (collection, index) => {
 
                 const members =
@@ -758,6 +986,12 @@ function renderCollections() {
             }
         )
     );
+
+    if (searchQuery && matchingCollections.length === 0) {
+        grid.append(
+            createSearchEmptyState("collection")
+        );
+    }
 }
 
 
@@ -785,6 +1019,11 @@ function renderCollectionDetail() {
                     collection.id
                 )
         );
+    const matchingMembers = members.filter((video) =>
+        `${video.title} ${video.url}`
+            .toLocaleLowerCase()
+            .includes(searchQuery)
+    );
 
     const title =
         document.querySelector(
@@ -807,14 +1046,21 @@ function renderCollectionDetail() {
     }
 
     if (count) {
-        count.textContent =
-            `${members.length} video`;
+        count.textContent = searchQuery
+            ? `${matchingMembers.length} dari ${members.length} video`
+            : `${members.length} video`;
     }
 
     if (grid) {
         grid.replaceChildren(
-            ...members.map(makeCard)
+            ...sortVideoList(matchingMembers).map(makeCard)
         );
+
+        if (searchQuery && matchingMembers.length === 0) {
+            grid.append(
+                createSearchEmptyState("video")
+            );
+        }
     }
 }
 
@@ -825,6 +1071,13 @@ function renderCollectionDetail() {
 
 function showView(view) {
     currentView = view;
+    searchInput.value = "";
+    searchQuery = "";
+    searchClear.hidden = true;
+    searchForm.hidden = view === "about";
+    mobileSearchButton.hidden = view === "about";
+    siteHeader.classList.remove("search-open");
+    mobileSearchButton.setAttribute("aria-expanded", "false");
 
     document.querySelector(
         "#library"
@@ -861,6 +1114,10 @@ function showView(view) {
 
     if (view === "collections") {
         renderCollections();
+    }
+
+    if (view === "home") {
+        renderVideos();
     }
 
     if (
@@ -1204,6 +1461,7 @@ function openAddDialog() {
 ========================================================= */
 
 async function openPlayer(video) {
+    activePlayerVideo = video;
     video.plays += 1;
 
     try {
@@ -1300,6 +1558,13 @@ async function openPlayer(video) {
 
     playerDialog.showModal();
 }
+
+
+playerAddCollectionButton.addEventListener("click", () => {
+    if (activePlayerVideo) {
+        openMembershipDialog(activePlayerVideo);
+    }
+});
 
 
 /* =========================================================
@@ -1427,6 +1692,56 @@ window.addEventListener(
     "resize",
     hideContextMenu
 );
+
+
+searchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+});
+
+searchInput.addEventListener("input", () => {
+    searchQuery = searchInput.value.trim().toLocaleLowerCase();
+    searchClear.hidden = searchInput.value.length === 0;
+    renderVideos();
+});
+
+searchClear.addEventListener("click", () => {
+    searchInput.value = "";
+    searchQuery = "";
+    searchClear.hidden = true;
+    renderVideos();
+    searchInput.focus();
+});
+
+mobileSearchButton.addEventListener("click", () => {
+    const isOpen = siteHeader.classList.toggle("search-open");
+    mobileSearchButton.setAttribute("aria-expanded", String(isOpen));
+
+    if (isOpen) {
+        document.querySelector(".mobile-nav").open = false;
+        searchInput.focus();
+    }
+});
+
+searchInput.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !siteHeader.classList.contains("search-open")) {
+        return;
+    }
+
+    siteHeader.classList.remove("search-open");
+    mobileSearchButton.setAttribute("aria-expanded", "false");
+    mobileSearchButton.focus();
+});
+
+document.addEventListener("click", (event) => {
+    if (
+        siteHeader.classList.contains("search-open") &&
+        !searchForm.contains(event.target) &&
+        !mobileSearchButton.contains(event.target)
+    ) {
+        siteHeader.classList.remove("search-open");
+        mobileSearchButton.setAttribute("aria-expanded", "false");
+    }
+});
 
 
 /* =========================================================

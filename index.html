@@ -16,25 +16,35 @@
 			<span class="brand-mark" aria-hidden="true">b.</span>
 			<span>boundhub<span class="brand-dot">.</span></span>
 		</a>
+		<form class="search-box" id="search-form" role="search">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 4.2 4.2"></path></svg>
+			<input id="site-search" type="search" placeholder="Cari video atau koleksi..." aria-label="Cari video atau koleksi" autocomplete="off">
+			<button class="search-clear" id="search-clear" type="button" aria-label="Hapus pencarian" hidden>×</button>
+		</form>
 		<nav class="desktop-nav" aria-label="Navigasi utama">
 			<a class="nav-link active" href="#home">Beranda</a>
 			<a class="nav-link" href="#collections">Koleksi</a>
 			<a class="nav-link" href="#about">Tentang</a>
 			<button class="add-button" type="button" data-open-add><span aria-hidden="true">＋</span> Add video</button>
 		</nav>
-		<details class="mobile-nav">
-			<summary aria-label="Buka menu navigasi">
-				<span></span>
-				<span></span>
-				<span></span>
-			</summary>
-			<nav aria-label="Navigasi utama">
-				<a href="#home">Beranda</a>
-				<a href="#collections">Koleksi</a>
-				<a href="#about">Tentang</a>
-				<button class="add-button" type="button" data-open-add><span aria-hidden="true">＋</span> Add video</button>
-			</nav>
-		</details>
+		<div class="mobile-actions">
+			<button class="mobile-search-button" id="mobile-search-button" type="button" aria-label="Buka pencarian" aria-expanded="false" aria-controls="search-form">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 4.2 4.2"></path></svg>
+			</button>
+			<details class="mobile-nav">
+				<summary aria-label="Buka menu navigasi">
+					<span></span>
+					<span></span>
+					<span></span>
+				</summary>
+				<nav aria-label="Navigasi utama">
+					<a href="#home">Beranda</a>
+					<a href="#collections">Koleksi</a>
+					<a href="#about">Tentang</a>
+					<button class="add-button" type="button" data-open-add><span aria-hidden="true">＋</span> Add video</button>
+				</nav>
+			</details>
+		</div>
 	</header>
 
 	<main id="home">
@@ -112,17 +122,6 @@
 		</form>
 	</dialog>
 
-	<dialog class="app-dialog add-dialog" id="membership-dialog" aria-labelledby="membership-title">
-		<form class="dialog-content" id="membership-form">
-			<button class="dialog-close" type="button" data-close-dialog aria-label="Tutup">×</button>
-			<p class="eyebrow section-eyebrow">ATUR KOLEKSI</p>
-			<h2 id="membership-title">Tambahkan ke koleksi<span class="brand-dot">.</span></h2>
-			<div class="collection-options" id="collection-options"></div>
-			<p class="form-error" id="membership-error" role="alert"></p>
-			<button class="submit-button" type="submit">Simpan pilihan <span aria-hidden="true">↗</span></button>
-		</form>
-	</dialog>
-
 	<div class="context-menu" id="video-context-menu" role="menu" aria-label="Pilihan video" hidden>
 		<button type="button" role="menuitem" data-context-action="collection">Tambahkan ke koleksi</button>
 		<button type="button" role="menuitem" data-context-action="edit">Edit</button>
@@ -137,8 +136,21 @@
 		<div class="player-header">
 			<button class="player-back" type="button" data-close-dialog aria-label="Kembali ke daftar video" title="Kembali"><span aria-hidden="true">←</span></button>
 			<p class="player-title" id="player-title"></p>
+			<button class="player-back player-add-collection" id="player-add-collection" type="button" aria-label="Tambahkan ke koleksi" title="Tambahkan ke koleksi">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5h6l2 2H20a1.5 1.5 0 0 1 1.5 1.5v7a2 2 0 0 1-2 2h-15a2 2 0 0 1-2-2v-10a.5.5 0 0 1 .5-.5Z"></path><path d="M12 12.5v5m-2.5-2.5h5"></path></svg>
+			</button>
 		</div>
 		<div class="player-frame" id="player-frame"></div>
+		<dialog class="app-dialog add-dialog" id="membership-dialog" aria-labelledby="membership-title">
+			<form class="dialog-content" id="membership-form">
+				<button class="dialog-close" type="button" data-close-dialog aria-label="Tutup">×</button>
+				<p class="eyebrow section-eyebrow">ATUR KOLEKSI</p>
+				<h2 id="membership-title">Tambahkan ke koleksi<span class="brand-dot">.</span></h2>
+				<div class="collection-options" id="collection-options"></div>
+				<p class="form-error" id="membership-error" role="alert"></p>
+				<button class="submit-button" type="submit">Simpan pilihan <span aria-hidden="true">↗</span></button>
+			</form>
+		</dialog>
 	</dialog>
 
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
