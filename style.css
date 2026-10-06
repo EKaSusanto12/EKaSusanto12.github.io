@@ -243,6 +243,103 @@ input {
 	padding: 36px 36px 64px;
 }
 
+.upload-panel {
+	background: var(--surface);
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	margin: 42px auto 0;
+	max-width: 620px;
+	padding: 32px;
+}
+
+.upload-panel h1 {
+	font-family: "Space Grotesk", sans-serif;
+	font-size: clamp(1.8rem, 4vw, 2.4rem);
+	letter-spacing: -0.04em;
+	margin: 0;
+}
+
+.upload-description {
+	color: var(--muted);
+	font-size: 0.92rem;
+	line-height: 1.55;
+	margin: 8px 0 26px;
+}
+
+.upload-panel label {
+	display: block;
+	font-size: 0.84rem;
+	font-weight: 700;
+	margin: 18px 0 8px;
+}
+
+.upload-panel input {
+	background: var(--input-surface);
+	border: 1px solid var(--line);
+	border-radius: 4px;
+	color: var(--ink);
+	min-height: 48px;
+	outline: none;
+	padding: 0 13px;
+	width: 100%;
+}
+
+.upload-panel input[type="file"] {
+	height: auto;
+	padding: 10px;
+}
+
+.upload-panel input:focus {
+	border-color: #6d8b35;
+	box-shadow: 0 0 0 3px rgba(109, 139, 53, 0.14);
+}
+
+.upload-progress-text {
+	color: var(--lime);
+	font-size: 0.86rem;
+	font-weight: 700;
+	margin: 8px 0 0;
+}
+
+.upload-panel progress {
+	appearance: none;
+	background: var(--line);
+	border: 0;
+	border-radius: 999px;
+	height: 10px;
+	margin-top: 22px;
+	overflow: hidden;
+	width: 100%;
+}
+
+.upload-panel progress::-webkit-progress-bar { background: var(--line); }
+.upload-panel progress::-webkit-progress-value { background: var(--green); }
+.upload-panel progress::-moz-progress-bar { background: var(--green); }
+
+.upload-status {
+	background: rgba(213, 238, 83, 0.06);
+	border-left: 3px solid var(--green);
+	border-radius: 3px;
+	color: var(--soft-ink);
+	line-height: 1.5;
+	margin: 16px 0 0;
+	padding: 12px 14px;
+	overflow-wrap: anywhere;
+}
+
+.upload-result {
+	border-top: 1px solid var(--line);
+	display: grid;
+	gap: 12px;
+	margin-top: 22px;
+	padding-top: 20px;
+}
+
+.upload-result[hidden] { display: none; }
+.upload-result strong { color: var(--lime); }
+.upload-result a { color: var(--soft-ink); overflow-wrap: anywhere; }
+.upload-result .submit-button { margin-top: 0; }
+
 .video-grid {
 	align-items: start;
 	display: grid;
@@ -1041,6 +1138,11 @@ input {
 	.library {
 		min-height: calc(100vh - 66px);
 		padding: 20px 16px 48px;
+	}
+
+	.upload-panel {
+		margin-top: 28px;
+		padding: 24px 18px;
 	}
 
 	.video-grid {

@@ -91,6 +91,31 @@
 			</div>
 			<div class="video-grid" id="collection-video-grid" aria-live="polite"></div>
 		</section>
+		<section class="library view-panel upload-view" id="upload-view" aria-labelledby="upload-title" hidden>
+			<button class="back-button" type="button" data-back-upload><span aria-hidden="true">←</span> Kembali ke beranda</button>
+			<div class="upload-panel">
+				<p class="eyebrow section-eyebrow">UNGGAH KE RUANG VIDEOMU</p>
+				<h1 id="upload-title">Add video<span class="brand-dot">.</span></h1>
+				<p class="upload-description">Pilih video dari perangkatmu, tambahkan judul, lalu unggah ke Boundhub.</p>
+				<form id="upload-form">
+					<label for="upload-title-input">Judul video</label>
+					<input id="upload-title-input" name="title" type="text" placeholder="Contoh: Ide untuk akhir pekan" maxlength="100" required>
+					<label for="upload-file">File video</label>
+					<input id="upload-file" name="file" type="file" accept="video/*" required>
+					<p class="field-hint">Pilih satu file video untuk diunggah.</p>
+					<p class="form-error" id="upload-error" role="alert" hidden></p>
+					<button class="submit-button" id="upload-button" type="submit">Upload video <span aria-hidden="true">↗</span></button>
+				</form>
+				<progress id="upload-progress" value="0" max="100" aria-label="Progres upload" hidden></progress>
+				<p class="upload-progress-text" id="upload-progress-text" hidden>0%</p>
+				<p class="upload-status" id="upload-status" role="status" aria-live="polite">Pilih file video untuk memulai.</p>
+				<div class="upload-result" id="upload-result" hidden>
+					<strong>Video berhasil ditambahkan ke beranda.</strong>
+					<a id="upload-result-link" target="_blank" rel="noopener noreferrer">Buka video</a>
+					<button class="submit-button" id="upload-done" type="button">Lihat di beranda <span aria-hidden="true">↗</span></button>
+				</div>
+			</div>
+		</section>
 	</main>
 
 	<dialog class="app-dialog add-dialog" id="add-dialog" aria-labelledby="add-title">

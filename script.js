@@ -12,6 +12,16 @@ const addDialog = document.querySelector("#add-dialog");
 const collectionDialog = document.querySelector("#collection-dialog");
 const membershipDialog = document.querySelector("#membership-dialog");
 const playerDialog = document.querySelector("#player-dialog");
+const uploadForm = document.querySelector("#upload-form");
+const uploadButton = document.querySelector("#upload-button");
+const uploadFileInput = document.querySelector("#upload-file");
+const uploadTitleInput = document.querySelector("#upload-title-input");
+const uploadProgress = document.querySelector("#upload-progress");
+const uploadProgressText = document.querySelector("#upload-progress-text");
+const uploadStatus = document.querySelector("#upload-status");
+const uploadError = document.querySelector("#upload-error");
+const uploadResult = document.querySelector("#upload-result");
+const uploadResultLink = document.querySelector("#upload-result-link");
 
 const addForm = document.querySelector("#add-form");
 const formError = document.querySelector("#form-error");
@@ -71,6 +81,8 @@ let currentView =
         ? "collections"
         : location.hash === "#about"
         ? "about"
+        : location.hash === "#upload"
+        ? "upload"
         : "home";
 
 
@@ -1074,8 +1086,8 @@ function showView(view) {
     searchInput.value = "";
     searchQuery = "";
     searchClear.hidden = true;
-    searchForm.hidden = view === "about";
-    mobileSearchButton.hidden = view === "about";
+    searchForm.hidden = view === "about" || view === "upload";
+    mobileSearchButton.hidden = view === "about" || view === "upload";
     siteHeader.classList.remove("search-open");
     mobileSearchButton.setAttribute("aria-expanded", "false");
 
@@ -1095,6 +1107,10 @@ function showView(view) {
         "#collection-detail"
     ).hidden =
         view !== "collection-detail";
+
+    document.querySelector(
+        "#upload-view"
+    ).hidden = view !== "upload";
 
     const activeView =
         view === "collection-detail"
@@ -1456,6 +1472,153 @@ function openAddDialog() {
 }
 
 
+function openUploadView() {
+    uploadForm.reset();
+    uploadError.textContent = "";
+    uploadError.hidden = true;
+    uploadProgress.value = 0;
+    uploadProgress.hidden = true;
+    uploadProgressText.textContent = "0%";
+    uploadProgressText.hidden = true;
+    uploadStatus.textContent = "Pilih file video untuk memulai.";
+    uploadResult.hidden = true;
+    uploadButton.disabled = false;
+
+    history.pushState(null, "", "#upload");
+    showView("upload");
+    uploadTitleInput.focus();
+}
+
+
+async function uploadVideo(file, title) {
+    const workerUrl = "https://boundhub-upload.ekasusanto154.workers.dev";
+    const chunkSize = 10 * 1024 * 1024;
+    const responseData = async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || "Permintaan upload gagal.");
+        }
+        return data;
+    };
+
+    uploadButton.disabled = true;
+    uploadError.hidden = true;
+    uploadResult.hidden = true;
+    uploadProgress.hidden = false;
+    uploadProgressText.hidden = false;
+    uploadProgress.value = 0;
+    uploadProgressText.textContent = "0%";
+
+    let completedKey = null;
+
+    try {
+        uploadStatus.textContent = "Membuat upload...";
+        const createData = await responseData(
+            await fetch(`${workerUrl}/upload/create`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    filename: file.name,
+                    contentType: file.type || "application/octet-stream"
+                })
+            })
+        );
+
+        if (
+            !createData.uploadId ||
+            typeof createData.key !== "string" ||
+            !createData.key
+        ) {
+            throw new Error("Server tidak memberikan informasi upload yang lengkap.");
+        }
+
+        const parts = [];
+        const totalParts = Math.ceil(file.size / chunkSize);
+
+        for (let partNumber = 1; partNumber <= totalParts; partNumber += 1) {
+            const start = (partNumber - 1) * chunkSize;
+            const end = Math.min(start + chunkSize, file.size);
+            const percent = Math.round(((partNumber - 1) / totalParts) * 100);
+
+            uploadProgress.value = percent;
+            uploadProgressText.textContent = `${percent}%`;
+            uploadStatus.textContent =
+                `Mengupload bagian ${partNumber} dari ${totalParts}...`;
+
+            const partData = await responseData(
+                await fetch(
+                    `${workerUrl}/upload/part?uploadId=${encodeURIComponent(createData.uploadId)}&key=${encodeURIComponent(createData.key)}&partNumber=${partNumber}`,
+                    {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/octet-stream" },
+                        body: file.slice(start, end)
+                    }
+                )
+            );
+
+            if (!partData.etag) {
+                throw new Error(`Server tidak memberikan ETag untuk bagian ${partNumber}.`);
+            }
+
+            parts.push({ partNumber, etag: partData.etag });
+            const currentPercent = Math.round((partNumber / totalParts) * 100);
+            uploadProgress.value = currentPercent;
+            uploadProgressText.textContent = `${currentPercent}%`;
+        }
+
+        uploadStatus.textContent = "Menyelesaikan upload...";
+        const completeData = await responseData(
+            await fetch(`${workerUrl}/upload/complete`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    uploadId: createData.uploadId,
+                    key: createData.key,
+                    parts
+                })
+            })
+        );
+
+        completedKey =
+            typeof completeData.key === "string" && completeData.key
+                ? completeData.key
+                : createData.key;
+        const publicUrl = `https://pub-c625ddfe95424f11993f508a116beb77.r2.dev/${completedKey
+            .split("/")
+            .map(encodeURIComponent)
+            .join("/")}`;
+
+        const video = {
+            id: crypto.randomUUID(),
+            title,
+            url: publicUrl,
+            plays: 0,
+            collectionIds: []
+        };
+
+        await insertVideo(video);
+        videos.unshift(video);
+        uploadProgress.value = 100;
+        uploadProgressText.textContent = "100%";
+        uploadStatus.textContent = "Upload selesai dan video sudah tersimpan di beranda.";
+        uploadResultLink.href = publicUrl;
+        uploadResult.hidden = false;
+        renderVideos();
+    } catch (error) {
+        console.error("Gagal mengunggah atau menyimpan video:", error);
+        uploadError.textContent = completedKey
+            ? "File sudah terunggah ke R2, tetapi gagal menambahkan video ke beranda. Periksa koneksi lalu coba tambahkan lagi."
+            : `Upload gagal: ${error.message}`;
+        uploadError.hidden = false;
+        uploadStatus.textContent = completedKey
+            ? "Upload R2 berhasil, penyimpanan video di beranda gagal."
+            : "Proses upload belum selesai.";
+    } finally {
+        uploadButton.disabled = false;
+    }
+}
+
+
 /* =========================================================
    PLAYER
 ========================================================= */
@@ -1576,9 +1739,47 @@ document
     .forEach((button) =>
         button.addEventListener(
             "click",
-            openAddDialog
+            () => {
+                openUploadView();
+                const mobileNav = document.querySelector(".mobile-nav");
+                if (mobileNav) mobileNav.open = false;
+            }
         )
     );
+
+document
+    .querySelector("[data-back-upload]")
+    .addEventListener("click", () => {
+        history.pushState(null, "", "#home");
+        showView("home");
+    });
+
+document
+    .querySelector("#upload-done")
+    .addEventListener("click", () => {
+        history.pushState(null, "", "#home");
+        showView("home");
+    });
+
+uploadForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const file = uploadFileInput.files[0];
+    const title = uploadTitleInput.value.trim();
+
+    if (!file || !title) {
+        uploadError.textContent = "Masukkan judul dan pilih file video terlebih dahulu.";
+        uploadError.hidden = false;
+        return;
+    }
+
+    if (file.size === 0) {
+        uploadError.textContent = "File yang dipilih kosong. Pilih file video lain.";
+        uploadError.hidden = false;
+        return;
+    }
+
+    await uploadVideo(file, title);
+});
 
 
 document
@@ -1757,9 +1958,23 @@ window.addEventListener(
                 ? "collections"
                 : location.hash === "#about"
                 ? "about"
+                : location.hash === "#upload"
+                ? "upload"
                 : "home"
         )
 );
+
+window.addEventListener("popstate", () => {
+    showView(
+        location.hash === "#collections"
+            ? "collections"
+            : location.hash === "#about"
+            ? "about"
+            : location.hash === "#upload"
+            ? "upload"
+            : "home"
+    );
+});
 
 
 document
@@ -1778,6 +1993,8 @@ document
                         ? "collections"
                         : link.hash === "#about"
                         ? "about"
+                        : link.hash === "#upload"
+                        ? "upload"
                         : "home";
 
                 history.replaceState(
